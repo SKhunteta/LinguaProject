@@ -42,16 +42,16 @@ def get_feedback(conversation, language_code):
     Are there any words or phrases that they used correctly or incorrectly? 
     Are there any new words or phrases that they should learn? Assume the identity of a caring language tutor.
     Please provide at least 3 specific examples from the conversation in {language_code}.
-    Remember to keep the response in English!"""
+    Remember to keep the response in English! Limit feedback to 1000 characters."""
     grammar_prompt = f"""Please provide feedback in English on the user's grammar. 
     Are there any errors in their sentence structure or verb conjugation? Assume the identity of a caring language tutor.
     Please provide at least 3 specific examples from the conversation in {language_code}.
-    Remember to keep the response in English!"""
+    Remember to keep the response in English! Limit feedback to 1000 characters."""
     coherence_prompt = f"""Please provide feedback in English on the user's coherence. 
     Were they able to maintain the context of the conversation? Assume the identity of a caring language tutor.
     Were they able to understand and respond to the AI's prompts appropriately?
     Please provide at least 3 specific examples from the conversation in {language_code}.
-    Remember to keep the response in English!"""
+    Remember to keep the response in English! Limit feedback to 1000 characters."""
 
     # Generate feedback on each of the three areas
     vocab_response = openai.Completion.create(
