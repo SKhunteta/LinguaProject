@@ -1,56 +1,110 @@
-import openai
 import csv
 import datetime
 import os
 import re
+import openai
 from dotenv import load_dotenv
 
-# Set your OpenAI API key
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+MAX_TOKENS = 2000
+
 def get_language_code(text):
-    language_response = openai.Completion.create(
-        model="text-davinci-002",
+    response = openai.Completion.create(
+        model="text-davinci-003",
         prompt=f"Please identify the language of the following text: '{text}'",
-        max_tokens=100,
+        max_tokens=MAX_TOKENS,
         n=1,
         stop=None,
         temperature=0.5,
     )
-
-    language = language_response['choices'][0]['text'].strip()
+    language = response['choices'][0]['text'].strip()
     return language
 
-def get_response(prompt, language_code):
+def get_ai_response(prompt, language_code):
     response = openai.Completion.create(
-        model="text-davinci-002",
+        model="text-davinci-003",
         prompt=f"Converse naturally in {language_code} and keep the conversation in the same language as the user input. Maintain context and provide relevant responses:\n\n{prompt}\n\nAI: ",
-        max_tokens=1000,
+        max_tokens=MAX_TOKENS,
         n=1,
         stop=None,
         temperature=0.5,
     )
-
     return response.choices[0].text.strip()
 
 def get_feedback(conversation, language_code):
-    feedback_prompt = f"""Please provide a detailed, kind, and encouraging feedback in English for the following conversation in {language_code} language. 
-    Evaluate the user's vocabulary, sentence structure, grammar, overall language use, and their ability to maintain the context. 
-    Highlight what the user did well and suggest areas for improvement. When providing feedback, assume the identity of a language tutor.
-    The feedback should cover at least 3 specific points:\n\n"""
-    feedback_prompt += '\n'.join(conversation)
+    """
+    Generates feedback for the given conversation and language code using OpenAI's text-davinci-003 model.
+    """
+    # Generate prompts for feedback on vocabulary, grammar, and coherence
+    vocab_prompt = f"""Please provide feedback in English on the user's vocabulary. 
+    Are there any words or phrases that they used correctly or incorrectly? 
+    Are there any new words or phrases that they should learn? Assume the identity of a caring language tutor.
+    Please provide at least 3 specific examples from the conversation in {language_code}."""
+    grammar_prompt = f"""Please provide feedback in English on the user's grammar. 
+    Are there any errors in their sentence structure or verb conjugation? Assume the identity of a caring language tutor.
+    Please provide at least 3 specific examples from the conversation in {language_code}."""
+    coherence_prompt = f"""Please provide feedback in English on the user's coherence. 
+    Were they able to maintain the context of the conversation? Assume the identity of a caring language tutor.
+    Were they able to understand and respond to the AI's prompts appropriately? 
+    Please provide at least 3 specific examples from the conversation in {language_code}."""
 
-    feedback_response = openai.Completion.create(
-        model="text-davinci-002",
-        prompt=feedback_prompt,
-        max_tokens=1000,
+    # Generate feedback on each of the three areas
+    vocab_response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=vocab_prompt + '\n' + '\n'.join(conversation),
+        max_tokens=MAX_TOKENS,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+    grammar_response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=grammar_prompt + '\n' + '\n'.join(conversation),
+        max_tokens=MAX_TOKENS,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+    coherence_response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=coherence_prompt + '\n' + '\n'.join(conversation),
+        max_tokens=MAX_TOKENS,
         n=1,
         stop=None,
         temperature=0.5,
     )
 
-    return feedback_response.choices[0].text.strip()
+    # Combine the three feedback responses into a single string
+    feedback = f"Vocabulary feedback: {vocab_response.choices[0].text.strip()}\n\n" \
+        f"Grammar feedback: {grammar_response.choices[0].text.strip()}\n\n" \
+        f"Coherence feedback: {coherence_response.choices[0].text.strip()}"
+
+    return feedback
+
+def save_conversation_and_feedback(conversation, feedback, language_code):
+    """
+    Saves the conversation and feedback as separate CSV files with timestamps.
+    """
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = f"{language_code}Conversation{timestamp}.csv"
+    feedback_filename = f"{language_code}Feedback{timestamp}.csv"
+
+    with open(filename, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Role', 'Text'])
+        for line in conversation:
+            role, text = line.split(': ', 1)
+            writer.writerow([f"{role}: {text}"])
+
+    with open(feedback_filename, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Feedback'])
+        writer.writerow([feedback])
+
+    print("\nConversation transcript and feedback files have been saved.")
+
 
 def main():
     print("Hello! It is so nice to meet you! My name is Lingua, your language learning assistant. Please start speaking to me in your target learning language of choice.")
@@ -69,29 +123,14 @@ def main():
             print("I'm sorry, but I currently do not understand this language enough to provide feedback in a respectful way.")
             break
 
-        ai_response = get_response('\n'.join(conversation), language_code)
+        ai_response = get_ai_response('\n'.join(conversation), language_code)
         conversation.append(f"AI: {ai_response}")
         print(ai_response)
 
     feedback = get_feedback(conversation, language_code)
 
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    filename = f"{language_code}Conversation{timestamp}.csv"
-    feedback_filename = f"{language_code}Feedback{timestamp}.csv"
-
-    with open(filename, mode='w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Role', 'Text'])
-        for line in conversation:
-            role, text = line.split(': ', 1)
-            writer.writerow([role, text])
-
-    with open(feedback_filename, mode='w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Feedback'])
-        writer.writerow([feedback])
-
-    print("\nConversation transcript and feedback files have been saved.")
+    save_conversation_and_feedback(conversation, feedback, language_code)
 
 if __name__ == "__main__":
     main()
+
