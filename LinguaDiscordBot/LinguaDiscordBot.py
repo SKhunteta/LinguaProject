@@ -43,7 +43,10 @@ async def speak(ctx, *, message):
 @bot.command(name='feedback', help='Get feedback from Lingua')
 async def feedback(ctx):
     channel = ctx.channel
-    messages = await channel.history(limit=100).flatten()
+    messages = []
+    async for message in channel.history(limit=100):
+        messages.append(message)
+
 
     conversation = []
     for msg in reversed(list(messages)):
