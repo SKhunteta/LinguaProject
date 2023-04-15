@@ -3,6 +3,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 import sys
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'LinguaConsoleBot')))
 
@@ -12,12 +13,21 @@ from Lingua import get_language_code, get_ai_response, get_feedback, save_conver
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+# Set the maximum requests limit to 1000
+MAX_REQUESTS = 1000
+
 # Create a new instance of the Intents class
 intents = discord.Intents.all()
 intents.members = True
 
 # Create a new instance of the Bot class with the intents parameter
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+# Keep track of the number of requests
+num_requests = 0
+
+# Set the start time of the current month
+start_month = time.strftime('%m')
 
 @bot.event
 async def on_ready():
@@ -29,6 +39,13 @@ async def start(ctx):
 
 @bot.command(name='speak', help='Send a message to Lingua')
 async def speak(ctx, *, message):
+    global num_requests, start_month
+
+    # Check if the maximum requests limit has been reached
+    if num_requests >= MAX_REQUESTS and time.strftime('%m') == start_month:
+        await ctx.send("Sorry, the developer who maintains this bot is currently unemployed and cannot afford to have over a certain amount of requests in a single month. That limit has now been exceeded. If you could like to hire him, please look up https://www.linkedin.com/in/shreyans-khunteta-3167247a/")
+        return
+
     user_text = message
     language_code = get_language_code(user_text)
 
@@ -40,13 +57,15 @@ async def speak(ctx, *, message):
         conversation.append(f"AI: {ai_response}")
         await ctx.send(f"{ctx.author.mention}, {ai_response}")
 
+        # Increment the number of requests
+        num_requests += 1
+
 @bot.command(name='feedback', help='Get feedback from Lingua')
 async def feedback(ctx):
     channel = ctx.channel
     messages = []
     async for message in channel.history(limit=100):
         messages.append(message)
-
 
     conversation = []
     for msg in reversed(list(messages)):
