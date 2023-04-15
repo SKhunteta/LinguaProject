@@ -6,14 +6,18 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'LinguaConsoleBot')))
 
-
 # Import Lingua functions from Lingua.py
 from Lingua import get_language_code, get_ai_response, get_feedback, save_conversation_and_feedback
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-bot = commands.Bot(command_prefix='!')
+# Create a new instance of the Intents class
+intents = discord.Intents.all()
+intents.members = True
+
+# Create a new instance of the Bot class with the intents parameter
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
@@ -21,7 +25,7 @@ async def on_ready():
 
 @bot.command(name='start', help='Start a conversation with Lingua')
 async def start(ctx):
-    await ctx.send("Hello! It is so nice to meet you! My name is Lingua, your language learning assistant. Please start speaking to me in your target learning language of choice.")
+    await ctx.send("Hello! It is so nice to meet you! My name is Lingua, your language learning assistant. Please start speaking to me in your target learning language of choice. Use !speak before your message to talk with me, !feedback to get feedback on our conversation so far, and !start to start a new conversation after the current one ends.")
 
 @bot.command(name='speak', help='Send a message to Lingua')
 async def speak(ctx, *, message):
