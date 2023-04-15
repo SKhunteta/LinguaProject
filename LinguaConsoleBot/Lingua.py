@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-MAX_TOKENS = 2000
+MAX_TOKENS = 1000
 
 def get_language_code(text):
     response = openai.Completion.create(
