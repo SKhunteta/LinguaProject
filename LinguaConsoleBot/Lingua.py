@@ -41,14 +41,17 @@ def get_feedback(conversation, language_code):
     vocab_prompt = f"""Please provide feedback in English on the user's vocabulary. 
     Are there any words or phrases that they used correctly or incorrectly? 
     Are there any new words or phrases that they should learn? Assume the identity of a caring language tutor.
-    Please provide at least 3 specific examples from the conversation in {language_code}."""
+    Please provide at least 3 specific examples from the conversation in {language_code}.
+    Remember to keep the response in English!"""
     grammar_prompt = f"""Please provide feedback in English on the user's grammar. 
     Are there any errors in their sentence structure or verb conjugation? Assume the identity of a caring language tutor.
-    Please provide at least 3 specific examples from the conversation in {language_code}."""
+    Please provide at least 3 specific examples from the conversation in {language_code}.
+    Remember to keep the response in English!"""
     coherence_prompt = f"""Please provide feedback in English on the user's coherence. 
     Were they able to maintain the context of the conversation? Assume the identity of a caring language tutor.
-    Were they able to understand and respond to the AI's prompts appropriately? 
-    Please provide at least 3 specific examples from the conversation in {language_code}."""
+    Were they able to understand and respond to the AI's prompts appropriately?
+    Please provide at least 3 specific examples from the conversation in {language_code}.
+    Remember to keep the response in English!"""
 
     # Generate feedback on each of the three areas
     vocab_response = openai.Completion.create(
@@ -96,7 +99,10 @@ def save_conversation_and_feedback(conversation, feedback, language_code):
         writer.writerow(['Role', 'Text'])
         for line in conversation:
             role, text = line.split(': ', 1)
-            writer.writerow([f"{role}: {text}"])
+            if role == 'AI':
+                writer.writerow([f"{role}: {text}"])
+            else:
+                writer.writerow([f"{role}: {text}"])
 
     with open(feedback_filename, mode='w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
