@@ -46,7 +46,7 @@ async def feedback(ctx):
     messages = await channel.history(limit=100).flatten()
 
     conversation = []
-    for msg in reversed(messages):
+    for msg in reversed(list(messages)):
         if msg.author == bot.user:
             conversation.append(f"AI: {msg.content}")
         elif msg.author == ctx.author:
