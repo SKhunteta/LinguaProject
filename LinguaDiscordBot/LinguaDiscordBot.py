@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import sys
 import time
+import asyncio
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'LinguaConsoleBot')))
 
@@ -35,10 +36,6 @@ async def on_ready():
 
 @bot.command(name='start', help='Start a conversation with Lingua')
 async def start(ctx):
-    await ctx.send("Hello! It is so nice to meet you! My name is Lingua, your language learning assistant. Please start speaking to me in your target learning language of choice. Use !speak before your message to talk with me, !feedback to get feedback on our conversation so far, and !start to start a new conversation after the current one ends.")
-
-@bot.command(name='speak', help='Send a message to Lingua')
-async def speak(ctx, *, message):
     global num_requests, start_month
 
     # Check if the maximum requests limit has been reached
@@ -46,39 +43,68 @@ async def speak(ctx, *, message):
         await ctx.send("Sorry, the developer who maintains this bot is currently unemployed and cannot afford to have over a certain amount of requests in a single month. That limit has now been exceeded. If you could like to hire him, please look up https://www.linkedin.com/in/shreyans-khunteta-3167247a/")
         return
 
+    # Create a new channel for the conversation
+    channel_name = f"{ctx.author.name}LinguaConversation"
+    category = ctx.channel.category
+    channel = await category.create_text_channel(channel_name)
+
+    # Set permissions for the bot to read and send messages in the new channel
+    await channel.set_permissions(bot.user, read_messages=True, send_messages=True)
+
+    # Send the welcome message to the new channel
+    await channel.send(f"Hello! It is so nice to meet you! My name is Lingua, your language learning assistant. Please start speaking to me in your target learning language of choice. Use !speak before your message to talk with me, !feedback to get feedback on our conversation so far, and !end to end the conversation and get feedback.")
+
+    # Set the permissions for the user to read and send messages in the new channel
+    await channel.set_permissions(ctx.author, read_messages=True, send_messages=True)
+    await channel.set_permissions(ctx.guild.default_role, read_messages=False, send_messages=False)
+
+    # Keep track of the number of requests
+    num_requests += 1
+
+@bot.command(name='speak', help='Send a message to Lingua')
+async def speak(ctx, *, message):
+    # Get the conversation channel
+    channel = discord.utils.get(ctx.guild.channels, name=f"{ctx.author.name.lower()}linguaconversation")
+
+    # Check if the channel exists
+    if channel is None:
+        await ctx.send(f"You don't currently have an active conversation with Lingua. Use !start to start a new conversation.")
+        return
+
     user_text = message
     language_code = get_language_code(user_text)
 
     if language_code == "Unknown":
-        await ctx.send("I'm sorry, but I currently do not understand this language enough to provide feedback in a respectful way.")
+        await channel.send("I'm sorry, but I currently do not understand this language enough to provide feedback in a respectful way.")
     else:
         conversation = [f"User: {user_text}"]
         ai_response = get_ai_response('\n'.join(conversation), language_code)
         conversation.append(f"AI: {ai_response}")
-        await ctx.send(f"{ctx.author.mention}, {ai_response}")
-
-        # Increment the number of requests
-        num_requests += 1
+        await channel.send(f"{ctx.author.mention}, {ai_response}")
 
 @bot.command(name='feedback', help='Get feedback from Lingua')
 async def feedback(ctx):
-    channel = ctx.channel
-    messages = []
-    async for message in channel.history(limit=100):
-        messages.append(message)
+    # Get the conversation channel
+    channel_name = f"{ctx.author.name.lower()}linguaconversation"
+    channel = discord.utils.get(ctx.guild.channels, name=channel_name)
 
     conversation = []
-    for msg in reversed(list(messages)):
-        if msg.author == bot.user:
-            conversation.append(f"AI: {msg.content}")
-        elif msg.author == ctx.author:
-            conversation.append(f"User: {msg.content}")
+    user = ctx.author.name
+    lingua = "Lingua"
+    async for msg in channel.history(limit=None):
+        if msg.author.name == lingua:
+            conversation.append(f"{lingua}: {msg.content}")
+        elif msg.author.name == user:
+            conversation.append(f"{user}: {msg.content}")
 
     language_code = get_language_code(conversation[-1].split(":", 1)[1].strip())
     feedback_text = get_feedback(conversation, language_code)
 
-    await ctx.send("Feedback sent in private message to user.")
+    await ctx.send("Feedback sent in private message to user. this channel will delete in 60 seconds. ")
     await ctx.author.send(f"Here's your feedback:\n\n{feedback_text}")
 
+    # Delete the channel after 1 minute
+    await asyncio.sleep(60)
+    await channel.delete()
 
 bot.run(TOKEN)
