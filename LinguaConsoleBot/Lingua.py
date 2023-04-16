@@ -44,7 +44,7 @@ def get_feedback(conversation, language_code):
     Were they able to maintain the context of the conversation and understand/respond to the AI's prompts appropriately? 
     Assume the identity of a caring language tutor.
     Please provide at least 3 specific examples from the conversation in {language_code}.
-    Remember to keep the response in English! Limit feedback to 2000 characters.
+    Remember to keep the response in English! Limit feedback to 1000 characters.
     In addition, be sure to strive for linguistic accuracy when providing feedback."""
 
     # Generate feedback using the prompt
