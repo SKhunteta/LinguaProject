@@ -77,6 +77,8 @@ async def feedback(ctx):
     language_code = get_language_code(conversation[-1].split(":", 1)[1].strip())
     feedback_text = get_feedback(conversation, language_code)
 
-    await ctx.send(f"{ctx.author.mention}, here's your feedback:\n\n{feedback_text}")
+    await ctx.send("Feedback sent in private message to user.")
+    await ctx.author.send(f"Here's your feedback:\n\n{feedback_text}")
+
 
 bot.run(TOKEN)

@@ -8,13 +8,13 @@ from dotenv import load_dotenv
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-MAX_TOKENS = 1000
+MAX_TOKENS = 1300
 
 def get_language_code(text):
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=f"Please identify the language of the following text: '{text}'",
-        max_tokens=MAX_TOKENS,
+        max_tokens=250,
         n=1,
         stop=None,
         temperature=0.5,
@@ -26,7 +26,7 @@ def get_ai_response(prompt, language_code):
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=f"Converse naturally in {language_code} and keep the conversation in the same language as the user input. Maintain context and provide relevant responses:\n\n{prompt}\n\nAI: ",
-        max_tokens=MAX_TOKENS,
+        max_tokens=600,
         n=1,
         stop=None,
         temperature=0.5,
@@ -37,54 +37,28 @@ def get_feedback(conversation, language_code):
     """
     Generates feedback for the given conversation and language code using OpenAI's text-davinci-003 model.
     """
-    # Generate prompts for feedback on vocabulary, grammar, and coherence
-    vocab_prompt = f"""Please provide feedback in English on the user's vocabulary. 
+    # Generate a prompt for feedback on vocabulary, grammar, and coherence
+    prompt = f"""Please provide feedback in English on the user's vocabulary, grammar, and coherence. 
     Are there any words or phrases that they used correctly or incorrectly? 
-    Are there any new words or phrases that they should learn? Assume the identity of a caring language tutor.
+    Are there any errors in their sentence structure or verb conjugation? 
+    Were they able to maintain the context of the conversation and understand/respond to the AI's prompts appropriately? 
+    Assume the identity of a caring language tutor.
     Please provide at least 3 specific examples from the conversation in {language_code}.
-    Remember to keep the response in English! Limit feedback to 1000 characters."""
-    grammar_prompt = f"""Please provide feedback in English on the user's grammar. 
-    Are there any errors in their sentence structure or verb conjugation? Assume the identity of a caring language tutor.
-    Please provide at least 3 specific examples from the conversation in {language_code}.
-    Remember to keep the response in English! Limit feedback to 1000 characters."""
-    coherence_prompt = f"""Please provide feedback in English on the user's coherence. 
-    Were they able to maintain the context of the conversation? Assume the identity of a caring language tutor.
-    Were they able to understand and respond to the AI's prompts appropriately?
-    Please provide at least 3 specific examples from the conversation in {language_code}.
-    Remember to keep the response in English! Limit feedback to 1000 characters."""
+    Remember to keep the response in English! Limit feedback to 2000 characters.
+    In addition, be sure to strive for linguistic accuracy when providing feedback."""
 
-    # Generate feedback on each of the three areas
-    vocab_response = openai.Completion.create(
+    # Generate feedback using the prompt
+    response = openai.Completion.create(
         model="text-davinci-003",
-        prompt=vocab_prompt + '\n' + '\n'.join(conversation),
-        max_tokens=MAX_TOKENS,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-    grammar_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=grammar_prompt + '\n' + '\n'.join(conversation),
-        max_tokens=MAX_TOKENS,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-    coherence_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=coherence_prompt + '\n' + '\n'.join(conversation),
+        prompt=prompt + '\n' + '\n'.join(conversation),
         max_tokens=MAX_TOKENS,
         n=1,
         stop=None,
         temperature=0.5,
     )
 
-    # Combine the three feedback responses into a single string
-    feedback = f"Vocabulary feedback: {vocab_response.choices[0].text.strip()}\n\n" \
-        f"Grammar feedback: {grammar_response.choices[0].text.strip()}\n\n" \
-        f"Coherence feedback: {coherence_response.choices[0].text.strip()}"
-
-    return feedback
+    # Return the feedback
+    return response.choices[0].text.strip()
 
 def save_conversation_and_feedback(conversation, feedback, language_code):
     """
