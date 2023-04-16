@@ -52,7 +52,7 @@ async def start(ctx):
     await channel.set_permissions(bot.user, read_messages=True, send_messages=True)
 
     # Send the welcome message to the new channel
-    await channel.send(f"Hello! It is so nice to meet you! My name is Lingua, your language learning assistant. Please start speaking to me in your target learning language of choice. Use !speak before your message to talk with me, !feedback to get feedback on our conversation so far, and !end to end the conversation and get feedback.")
+    await channel.send(f"Hello! It is so nice to meet you! My name is Lingua, your language learning assistant. Please start speaking to me in your target learning language of choice. Use !speak before your message to talk with me, !feedback to get feedback on our conversation so far and auto-delete this channel in a minute.")
 
     # Set the permissions for the user to read and send messages in the new channel
     await channel.set_permissions(ctx.author, read_messages=True, send_messages=True)
