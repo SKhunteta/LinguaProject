@@ -43,6 +43,11 @@ async def start(ctx):
         await ctx.send("Sorry, the developer who maintains this bot is currently unemployed and cannot afford to have over a certain amount of requests in a single month. That limit has now been exceeded. If you could like to hire him, please look up https://www.linkedin.com/in/shreyans-khunteta-3167247a/")
         return
 
+    # Check if the user's current channel is named "start"
+    if ctx.channel.name.lower() != "start":
+        await ctx.send("Please use the !start command in a channel named 'start'.")
+        return
+
     # Create a new channel for the conversation
     channel_name = f"{ctx.author.name}LinguaConversation"
     category = ctx.channel.category
