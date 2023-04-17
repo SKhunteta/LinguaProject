@@ -46,7 +46,7 @@ async def start(ctx):
     # Create a new channel for the conversation
     channel_name = f"{ctx.author.name}LinguaConversation"
     category = ctx.channel.category
-    channel = await category.create_text_channel(channel_name, reason='')
+    channel = await category.create_text_channel(channel_name, reason=None)
 
     # Set permissions for the bot to read and send messages in the new channel
     await channel.set_permissions(bot.user, read_messages=True, send_messages=True)
