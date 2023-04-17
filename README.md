@@ -47,6 +47,6 @@ This project is licensed under the terms of the [MIT License](https://opensource
 
 # Discord Server
 
-Want to hang out with us? Join us at the Lingua Discord Server!(https://discord.gg/JRdhFQvA)
+Want to hang out with us? Join us at the [Lingua Discord Server!](https://discord.gg/JRdhFQvA)
 
 Help us experiment with this bot, and see what we can improve.
