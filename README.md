@@ -37,7 +37,8 @@ To run the LinguaDiscordBot, you will need to have Python 3 installed. You will 
 
 Once the bot is up and running, users can start a conversation by typing !start in a Discord channel where the bot has been added. The bot will create a new text channel for the conversation and provide instructions on how to interact with it. Users can use !speak to send messages to the bot and !feedback to receive feedback on the conversation so far.
 
-###Disclaimer
+### Disclaimer
+
 Please note that the Lingua AI Chatbot is a tool designed to facilitate language learning and should not be relied upon for accurate translations or professional language advice. The creator of this bot is not responsible for any harm that may arise from its use.
 
 ### License
