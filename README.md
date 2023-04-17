@@ -44,3 +44,9 @@ Please note that the Lingua AI Chatbot is a tool designed to facilitate language
 ### License
 
 This project is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT). You are free to use, modify, and distribute this software, as long as you adhere to the terms of the license.
+
+# Discord Server
+
+Want to hang out with us? Join us at the Lingua Discord Server!(https://discord.gg/JRdhFQvA)
+
+Help us experiment with this bot, and see what we can improve.
