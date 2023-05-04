@@ -11,27 +11,37 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 MAX_TOKENS = 1300
 
 def get_language_code(text):
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Please identify the language of the following text: '{text}'",
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that can identify the language of a given text."},
+            {"role": "user", "content": text}
+        ],
         max_tokens=250,
         n=1,
-        stop=None,
         temperature=0.5,
     )
-    language = response['choices'][0]['text'].strip()
+    language = response['choices'][0]['message']['content'].strip()
     return language
 
-def get_ai_response(prompt, language_code):
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Converse naturally in {language_code} and keep the conversation in the same language as the user input. Maintain context and provide relevant responses:\n\n{prompt}\n\nAI: ",
+def get_ai_response(conversation_string, language_code):
+    conversation = conversation_string.split('\n')
+    messages = [
+        {"role": "system", "content": f"Converse naturally in {language_code} and keep the conversation in the same language as the user input. Maintain context and provide relevant responses."}
+    ]
+    
+    for message in conversation:
+        role, content = message.split(": ", 1)
+        messages.append({"role": "user" if "User" in role else "assistant", "content": content})
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=messages,
         max_tokens=600,
         n=1,
-        stop=None,
         temperature=0.5,
     )
-    return response.choices[0].text.strip()
+    return response.choices[0]['message']['content'].strip()
 
 def get_feedback(conversation, language_code):
     """
@@ -48,17 +58,19 @@ def get_feedback(conversation, language_code):
     In addition, be sure to strive for linguistic accuracy when providing feedback."""
 
     # Generate feedback using the prompt
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=prompt + '\n' + '\n'.join(conversation),
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": prompt},
+            *[{ "role": "user" if "User" in message else "assistant", "content": message.split(": ", 1)[1] } for message in conversation if ": " in message]
+        ],
         max_tokens=MAX_TOKENS,
         n=1,
-        stop=None,
         temperature=0.5,
     )
 
     # Return the feedback
-    return response.choices[0].text.strip()
+    return response.choices[0]['message']['content'].strip()
 
 def save_conversation_and_feedback(conversation, feedback, language_code):
     """
@@ -103,7 +115,7 @@ def main():
             print("I'm sorry, but I currently do not understand this language enough to provide feedback in a respectful way.")
             break
 
-        ai_response = get_ai_response('\n'.join(conversation), language_code)
+        ai_response = get_ai_response(conversation, language_code)
         conversation.append(f"AI: {ai_response}")
         print(ai_response)
 
