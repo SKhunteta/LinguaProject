@@ -11,6 +11,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 MAX_TOKENS = 1300
 
 def get_language_code(text):
+    print("Text to identify:", text)
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
@@ -22,7 +23,9 @@ def get_language_code(text):
         temperature=0.5,
     )
     language = response['choices'][0]['message']['content'].strip()
+    print("Language identified:", language)  # Add this line to print the language
     return language
+
 
 def get_ai_response(conversation_string, language_code):
     conversation = conversation_string.split('\n')
