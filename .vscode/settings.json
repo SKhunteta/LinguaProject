@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
         "./LinguaConsoleBot"
-    ]
+    ],
+    "python.formatting.provider": "black"
 }

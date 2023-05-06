@@ -20,7 +20,12 @@ def send_message():
     ai_response = get_ai_response('\n'.join(conversation_history), language_code)
     conversation_history.append(f"AI: {ai_response}")
 
-    return jsonify({"ai_response": ai_response})
+    new_messages = [
+        {"sender": "user", "content": user_text},
+        {"sender": "ai", "content": ai_response},
+    ]
+
+    return jsonify({"conversation": new_messages})
 
 @app.route('/api/request-feedback', methods=['POST'])
 def request_feedback():

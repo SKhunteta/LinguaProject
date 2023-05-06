@@ -1,16 +1,16 @@
 import React from 'react';
+import './App.css';
 
 function Conversation({ messages }) {
   return (
-    <div>
-      <h2>Conversation</h2>
-      <ul>
-        {messages && messages.map((message, index) => (
-          <li key={index} style={{ textAlign: message.sender === 'user' ? 'right' : 'left' }}>
+    <div className="conversation-container">
+      {messages.map((message, index) => (
+        <div key={index} className={message.sender === 'user' ? 'text-right' : 'text-left'}>
+          <div className={`message ${message.sender}-message`}>
             {message.content}
-          </li>
-        ))}
-      </ul>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

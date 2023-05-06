@@ -8,20 +8,20 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [feedback, setFeedback] = useState('');
 
-  const handleNewMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  };
+  const handleNewMessage = (newMessages) => {
+    setMessages((prevMessages) => [...prevMessages, ...newMessages]);
+  };  
 
   return (
-    <div className="App">
-      <h1>Lingua Language Learning Assistant</h1>
-      <InputForm onNewMessage={handleNewMessage} onNewFeedback={setFeedback} />
+    <div className="chat-container">
+      <h1 className="chatbot-title">Lingua Language Learning Assistant</h1>
       <Conversation messages={messages} />
+      <InputForm onNewMessage={handleNewMessage} onNewFeedback={setFeedback} />
       <Feedback feedback={feedback} />
     </div>
   );
 }
 
-
 export default App;
+
 
