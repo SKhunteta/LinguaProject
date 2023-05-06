@@ -8,15 +8,20 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [feedback, setFeedback] = useState('');
 
+  const handleNewMessage = (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  };
+
   return (
     <div className="App">
       <h1>Lingua Language Learning Assistant</h1>
-      <InputForm onNewMessage={setMessages} onNewFeedback={setFeedback} />
+      <InputForm onNewMessage={handleNewMessage} onNewFeedback={setFeedback} />
       <Conversation messages={messages} />
       <Feedback feedback={feedback} />
     </div>
   );
 }
+
 
 export default App;
 

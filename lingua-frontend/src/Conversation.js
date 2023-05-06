@@ -1,12 +1,14 @@
 import React from 'react';
 
-function Conversation({ messages = [] }) {
+function Conversation({ messages }) {
   return (
     <div>
       <h2>Conversation</h2>
       <ul>
-        {messages.map((message, index) => (
-          <li key={index}>{message}</li>
+        {messages && messages.map((message, index) => (
+          <li key={index} style={{ textAlign: message.sender === 'user' ? 'right' : 'left' }}>
+            {message.content}
+          </li>
         ))}
       </ul>
     </div>
