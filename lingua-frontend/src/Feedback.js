@@ -1,9 +1,11 @@
-import React from 'react';
-import './App.css';
+import React from "react";
+import "./App.css";
 
 function Feedback({ feedback }) {
   return feedback ? (
-    <p className="feedback">{feedback}</p>
+    <div className="feedback-container">
+      <p className="feedback-text">{feedback}</p>
+    </div>
   ) : null;
 }
 

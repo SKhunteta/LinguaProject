@@ -34,8 +34,12 @@ def get_ai_response(conversation_string, language_code):
     ]
     
     for message in conversation:
-        role, content = message.split(": ", 1)
-        messages.append({"role": "user" if "User" in role else "assistant", "content": content})
+        if ": " in message:
+            role, content = message.split(": ", 1)
+            messages.append({"role": "user" if "User" in role else "assistant", "content": content})
+        else:
+            messages.append({"role": "user", "content": message})
+
 
     response = openai.ChatCompletion.create(
         model="gpt-4",
@@ -51,11 +55,11 @@ def get_feedback(conversation, language_code):
     Generates feedback for the given conversation and language code using OpenAI's text-davinci-003 model.
     """
     # Generate a prompt for feedback on vocabulary, grammar, and coherence
-    prompt = f"""Please provide feedback in English on the user's vocabulary, grammar, and coherence. 
+    prompt = f"""Assume the identity of a caring, intelligent language tutor.
+    Please provide feedback in English on the user's vocabulary, grammar, and coherence by analyzing the conversation. 
     Are there any words or phrases that they used correctly or incorrectly? 
     Are there any errors in their sentence structure or verb conjugation? 
     Were they able to maintain the context of the conversation and understand/respond to the AI's prompts appropriately? 
-    Assume the identity of a caring language tutor.
     Please provide at least 3 specific examples from the conversation in {language_code}.
     Remember to keep the response in English! Limit feedback to 1000 characters.
     In addition, be sure to strive for linguistic accuracy when providing feedback."""

@@ -92,11 +92,6 @@ body {
   margin-bottom: 20px;
 }
 
-.feedback-container {
-  display: flex;
-  align-items: center;
-}
-
 .feedback-button {
   font-size: 16px;
   padding: 10px 20px;
@@ -111,7 +106,19 @@ body {
   background-color: #0056b3;
 }
 
+.feedback-container {
+  display: flex;
+  justify-content: center;
+}
+
 .feedback-text {
-  margin: 0;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #e2def3;
+  color: #333;
+  font-size: 16px;
   font-style: italic;
+  max-width: 90%;
+  word-break: break-word;
 }
