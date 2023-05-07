@@ -1,12 +1,10 @@
 import React from 'react';
+import './App.css';
 
 function Feedback({ feedback }) {
-  return (
-    <div>
-      <h2 className="mb-4">Feedback</h2>
-      <p>{feedback}</p>
-    </div>
-  );
+  return feedback ? (
+    <p className="feedback">{feedback}</p>
+  ) : null;
 }
 
 export default Feedback;

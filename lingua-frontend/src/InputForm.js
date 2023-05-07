@@ -1,19 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 function InputForm({ onNewMessage, onNewFeedback }) {
   const [inputText, setInputText] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const inputRef = useRef(null);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isSending) {
+    if (isSendingMessage) {
       return;
     }
 
-    setIsSending(true);
+    setIsSendingMessage(true);
 
     try {
       const response = await axios.post('http://127.0.0.1:5000/api/send-message', {
@@ -23,7 +22,6 @@ function InputForm({ onNewMessage, onNewFeedback }) {
       setInputText('');
 
       const newMessages = response.data.conversation;
-      const newFeedback = response.data.feedback;
 
       // Ensure newMessages has the correct structure
       if (
@@ -33,42 +31,46 @@ function InputForm({ onNewMessage, onNewFeedback }) {
         )
       ) {
         onNewMessage(newMessages);
-        onNewFeedback(newFeedback);
       } else {
         console.error('Invalid conversation data received from the server:', newMessages);
       }
     } catch (error) {
       console.error('Error while sending message:', error);
-    } finally {
-      setIsSending(false);
-      inputRef.current.focus();
     }
+
+    setIsSendingMessage(false);
   };
 
-  const handleInputChange = (e) => {
-    setInputText(e.target.value);
+  const handleFeedback = async () => {
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/api/request-feedback', {
+        language_code: 'en',
+      });
+
+      const newFeedback = response.data.feedback;
+
+      onNewFeedback(newFeedback);
+    } catch (error) {
+      console.error('Error while requesting feedback:', error);
+    }
   };
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="input-form-container">
-          <input
-            type="text"
-            value={inputText}
-            onChange={handleInputChange}
-            placeholder="Type your message..."
-            ref={inputRef}
-            disabled={isSending}
-          />
-          <button type="submit" disabled={isSending}>
-            {isSending ? 'Sending...' : 'Send'}
-          </button>
-        </div>
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          placeholder="Type your message..."
+        />
+        <button type="submit" disabled={isSendingMessage}>
+          {isSendingMessage ? 'Sending...' : 'Send'}
+        </button>
       </form>
+      <button className="feedback-button" onClick={handleFeedback}>Request Feedback</button>
     </div>
   );
 }
 
 export default InputForm;
-

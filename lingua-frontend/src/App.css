@@ -67,12 +67,6 @@ button[type='submit']:hover {
   background-color: #677bc4;
 }
 
-.feedback {
-  margin-top: 20px;
-  font-style: italic;
-  color: #fff;
-}
-
 html,
 body {
   height: 100%;
@@ -96,4 +90,28 @@ body {
   color: #fff;
   text-shadow: 2px 2px #333;
   margin-bottom: 20px;
+}
+
+.feedback-container {
+  display: flex;
+  align-items: center;
+}
+
+.feedback-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  background-color: #7289da;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.feedback-button:hover {
+  background-color: #0056b3;
+}
+
+.feedback-text {
+  margin: 0;
+  font-style: italic;
 }
